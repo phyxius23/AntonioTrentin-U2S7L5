@@ -82,14 +82,6 @@ const fetchData = async (type) => {
 }
 
 
-
-const handleClick = () => {
-
-   // il metodo .assign() sposta l'utente su un'altra pagina, come fosse un href su un <a>
-   window.location.assign("./backoffice.html?id=" + selectedId)
-}
-
-
 window.onload = () => {
 
    fetchData();

@@ -39,6 +39,8 @@ const method = selectedId ? "PUT" : "POST"
 const productSave = async (event) => {
    event.preventDefault();
 
+   let myForm = document.getElementById("form");
+
    // creazione dell'oggetto che invieremo come payload (provo ad utilizzare una classe: NO)
    const newProduct = {
       name: document.getElementById("name").value,
@@ -71,9 +73,11 @@ const productSave = async (event) => {
          } else {
             alert(`Il prodotto con id ${newProductObj._id} è stato creato con successo`)
          }
+         myForm.reset();
       } else {
          throw new Error(`Qualcosa è andato storto`)
       }
+
 
    } catch (error) {
       alert(error)
