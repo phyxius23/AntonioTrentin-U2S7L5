@@ -11,7 +11,6 @@ const authorization = {
 }
 
 
-
 /**
  * HOMEPAGE
  * ----------------------------------------------------------------------------
@@ -19,6 +18,10 @@ const authorization = {
 
 // qui andrò ad iniettare le mie card
 const products = document.querySelector('#products');
+
+// inserisco anno copyright nel footer
+let currentYear = new Date();
+document.querySelector('footer p').innerText = `© ${currentYear.getFullYear()} Crudazon, Inc.`;
 
 
 /**
@@ -37,16 +40,14 @@ const createCard = async (elementi) => {
          column.className = 'col-12 col-md-6 col-lg-4';
 
          column.innerHTML = `
-            <div class="card">
+            <div class="card h-100 shadow">
                <img src="${card.imageUrl}" class="card-img-top img-fluid p-3" alt="${card.description}">
                <div class="card-body">
-                  <h5 class="card-title mt-auto">${card.name}</h5>
+                  <h5 class="card-title">${card.name}</h5>
                   <p class="card-text">${card.description}</p>
-                  <div class="d-flex justify-content-between">
-                     <!-- <button type="button" class="btn btn-primary">1</button>
-                     <button type="button" class="btn btn-primary">2</button> -->
-                     <a href="./details.html?id=${card._id}" class="btn btn-success">Scopri di più</a>
-                     <a href="./backoffice.html?id=${card._id}" class="btn btn-outline-success">Edit</a>
+                  <div class="d-flex justify-content-between mt-auto">
+                     <a href="./backoffice.html?id=${card._id}" class="btn btn-outline-primary">Edit</a>
+                     <a href="./details.html?id=${card._id}" class="btn btn-primary">Scopri di più</a>
                   </div>
                </div>
             </div>
@@ -59,7 +60,7 @@ const createCard = async (elementi) => {
 
 
 /**
- * Fn che mi recupera i dati via API
+ * Fn che recupera i dati via API
  * ----------------------------------------------------------------------------
  */
 const fetchData = async (type) => {
@@ -82,6 +83,10 @@ const fetchData = async (type) => {
 }
 
 
+/**
+ * window.onload()
+ * ----------------------------------------------------------------------------
+ */
 window.onload = () => {
 
    fetchData();

@@ -18,7 +18,9 @@ const authorization = {
 const URLParams = new URLSearchParams(window.location.search);
 const selectedId = URLParams.get("id");
 
-console.log("ID: ", selectedId);
+// inserisco anno copyright nel footer
+let currentYear = new Date();
+document.querySelector('footer p').innerText = `© ${currentYear.getFullYear()} Crudazon, Inc.`;
 
 
 /**
@@ -36,30 +38,38 @@ const handleClick = () => {
  */
 window.onload = async () => {
    const container = document.getElementById("details-container")
+
    try {
       console.log(api + "?id=" + selectedId)
       const resp = await fetch(api + selectedId, authorization)
-      const appointmentData = await resp.json()
+      const productFields = await resp.json()
 
       // destrutturazione dell'oggetto in variabili contenenti valori delle sue proprietà
-      const { _id, name, description, price, time, createdAt, updatedAt } = appointmentData
+      const { _id, name, brand, description, imageUrl, price } = productFields;
 
       container.innerHTML = `
-              <h1 class="fw-bold">${name}</h1>
-              <p class="font-monospace">${new Date(time).toLocaleString("it-IT")}</p>
-              <p>${price}€</p>
-              <h6 class="bg-light py-3 ps-2">Server Details</h6>
-              <ul class="list-group list-group-flush">
-                  <li class="list-group-item ps-2"><strong>id:</strong> ${_id}</li>
-                  <li class="list-group-item ps-2"><strong>createdAt:</strong> ${createdAt}</li>
-                  <li class="list-group-item ps-2"><strong>updatedAt:</strong> ${updatedAt}</li>
-              </ul>
-              <button class="btn btn-success mt-3" onclick="handleClick()">Modifica appuntamento</button>
-              `
+         <div class="d-flex flex-column align-items-center shadow">
+            <div class="header bg-light rounded-top w-100 py-3">
+               <h3 class="fw-bold text-center mb-0">Dettagli del Prodotto</h3>
+            </div>
+            <div class="main d-flex justify-content-center align-items-center my-4 mx-2">
+               <div class="col-6 p-3">
+                  <img src="${imageUrl}" class="img-fluid" alt="">
+               </div>
+               <div class="col-6 p-3">
+                  <h1>${name}</h1>
+                  <h2 class="">${brand}</h2>
+                  <p>${description}</p>
+                  <p>$ ${price}</p>
+               </div>
+            </div>
+            <div class="footer bg-light rounded-bottom w-100 py-4 text-center">
+               <button class="btn btn-primary rounded-pill" onclick="handleClick()">Modifica prodotto</button>
+            </div>
+         </div>
+      `
    }
    catch (err) {
       console.log(err)
    }
 }
-
-

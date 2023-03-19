@@ -6,7 +6,7 @@ const api = 'https://striveschool-api.herokuapp.com/api/product/';
 const key = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDE0M2JmYWY4MWI0MjAwMTM5YjI4NjIiLCJpYXQiOjE2NzkwNDc2NzUsImV4cCI6MTY4MDI1NzI3NX0.JmR_1o_XdXappfHvo-dwS-Viv59cw5do0ZL-M7sGTBs';
 const authorization = {
    headers: {
-      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDE0M2JmYWY4MWI0MjAwMTM5YjI4NjIiLCJpYXQiOjE2NzkwNDc2NzUsImV4cCI6MTY4MDI1NzI3NX0.JmR_1o_XdXappfHvo-dwS-Viv59cw5do0ZL-M7sGTBs"
+      "Authorization": key
    }
 }
 
@@ -21,7 +21,21 @@ const selectedId = URLParams.get("id")
 const endpoint = selectedId ? api + selectedId : api;
 const method = selectedId ? "PUT" : "POST"
 
+// 
+let myForm = document.getElementById('form');
 
+// inserisco anno copyright nel footer
+let currentYear = new Date();
+document.querySelector('footer p').innerText = `© ${currentYear.getFullYear()} Crudazon, Inc.`;
+
+
+/**
+ * Fn di validazione del form per la creazione/modifica del prodotto
+ * ----------------------------------------------------------------------------
+ */
+const inputValidate = () => {
+   myForm.classList.add('validated');
+}
 
 // classe che utilizzo per istanziare l'oggetto contenente i dati ricevuti dai vari input
 // non la utilizzo perchè quando andrò ad istanziarla il codice sarà poco chiaro
@@ -35,11 +49,12 @@ const method = selectedId ? "PUT" : "POST"
 //    }
 // }
 
-
+/**
+ * Fn per modificare/salvare il prodotto
+ * ----------------------------------------------------------------------------
+ */
 const productSave = async (event) => {
    event.preventDefault();
-
-   let myForm = document.getElementById("form");
 
    // creazione dell'oggetto che invieremo come payload (provo ad utilizzare una classe: NO)
    const newProduct = {
@@ -53,8 +68,6 @@ const productSave = async (event) => {
    // instanza della classe Product, codice poco chiaro
    // const newProduct = new Product(document.getElementById("name").value, document.getElementById("brand").value, document.getElementById("description").value, document.getElementById("imageUrl").value, document.getElementById("price").value);
 
-   // console.log(newProduct) //oggetto modificato/creato
-
    try {
       const resp = await fetch(endpoint, {
          method,
@@ -66,25 +79,70 @@ const productSave = async (event) => {
       })
 
       if (resp.ok) {
-         const newProductObj = await resp.json()
+         const newProductObj = await resp.json();
 
          if (selectedId) {
-            alert(`Il prodotto con id ${newProductObj._id} è stato modificato correttamente`)
+            alert(`Il prodotto con id ${newProductObj._id} è stato modificato correttamente`);
          } else {
-            alert(`Il prodotto con id ${newProductObj._id} è stato creato con successo`)
+            alert(`Il prodotto con id ${newProductObj._id} è stato creato con successo`);
          }
-         myForm.reset();
+         window.location.assign("./index.html");
       } else {
-         throw new Error(`Qualcosa è andato storto`)
+         throw new Error(`Qualcosa è andato storto`);
       }
 
-
    } catch (error) {
-      alert(error)
+      alert(error);
    }
 }
 
 
+/**
+ * Fn per fare reset dei campi del prodotto
+ * ----------------------------------------------------------------------------
+ */
+const inputReset = () => {
+   // chiedo conferma prima di resettare i campi del form
+   const hasAccepted = confirm('Cancellare i dati inseriti?');
+
+   // se accetta procediamo all'effettivo reset
+   if (hasAccepted) {
+      myForm.reset();
+      myForm.classList.remove('validated');
+   }
+}
+
+
+/**
+ * Fn per eliminare il prodotto
+ * ----------------------------------------------------------------------------
+ */
+const productDelete = async () => {
+
+   // chiedo conferma prima di eliminare il prodotto
+   const hasAccepted = confirm('Eliminare il prodotto?');
+
+   // se accetta procediamo all'effettiva rimozione
+   if (hasAccepted) {
+      try {
+
+         const resp = await fetch(endpoint, {
+            method: 'DELETE',
+            headers: {
+               "Authorization": key,
+            }
+         })
+   
+         const deletedObj = await resp.json();
+
+         alert("Hai eliminato il prodotto " + deletedObj.name);
+         window.location.assign("./index.html");
+
+      } catch (error) {
+         console.log(error);
+      }
+   }
+}
 
 
 /**
@@ -96,7 +154,6 @@ window.onload = async () => {
    if (selectedId) {
 
       // document.getElementById("subtitle").innerText = " — Modifica appuntamento" // cambia testo sottotitolo se siamo arrivati sulla pagina per modificare una risorsa esistente
-      // document.getElementById("delete-btn").classList.remove("d-none") // abilita il bottone delete solo sulla pagina di modifica
 
       try {
 
@@ -105,46 +162,23 @@ window.onload = async () => {
          const productsData = await resp.json()
          const { name, brand, description, imageUrl, price } = productsData
 
-
          // inserimento del testo negli input corrispondenti
-         document.getElementById("name").value = name
-         document.getElementById("brand").value = brand
-         document.getElementById("description").value = description
-         document.getElementById("imageUrl").value = imageUrl
-         document.getElementById("price").value = price
+         document.getElementById("name").value = name;
+         document.getElementById("brand").value = brand;
+         document.getElementById("description").value = description;
+         document.getElementById("imageUrl").value = imageUrl;
+         document.getElementById("price").value = price;
 
-         // modifica aspetto del bottone submit
-         // const sbmtBtn = document.querySelector("button[type='submit']")
-         // sbmtBtn.classList.remove("btn-primary")
-         // sbmtBtn.classList.add("btn-success")
-         // sbmtBtn.innerText = "Modifica"
+         // nascondi bottone reset
+         myForm.querySelector('#resetInput').classList.add('d-none');
 
-      } catch (error) {
-         console.log(error)
-      }
-   }
-}
+         // visualizza bottone elimina
+         myForm.querySelector('#deleteProduct').classList.remove('d-none');
+         myForm.querySelector('#deleteProduct').classList.add('d-block');
 
-
-const productDelete = async () => {
-
-   // chiediamo conferma all'utente
-   const hasAccepted = confirm('Eliminare il prodotto?')
-
-   // se accetta procediamo all'effettiva rimozione
-   if (hasAccepted) {
-      try {
-
-         // ricorda: basta una fetch con l'endpoint e il metodo corretti per rimuovere già qualcosa, l'await in questo caso non è obbligatorio
-         // ma se ci serve un qualche dato di ritorno allora lo useremo per aspettare la resp e per ricavarne il body
-         const resp = await fetch(endpoint, { method: "DELETE" })
-         const deletedObj = await resp.json()
-
-         alert("Hai eliminato l'appuntamento " + deletedObj.name)
-         // se non usassimo un alert qui servirebbe ritardare l'esecuzione del metodo assign di window, 
-         // ma siccome alert è "bloccante" in questo specifico caso non occorre
-         window.location.assign("./index.html")
-
+         // cambia testo del bottone salva
+         myForm.querySelector('#saveProduct').innerText = 'Modifica';
+         
       } catch (error) {
          console.log(error)
       }
